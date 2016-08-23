@@ -36,16 +36,6 @@ public class Main {
             }
         }
 
-        public static void findDiaDistribution(String s, Map<Diacritic, Integer> map) {
-            Diacritic diacritic = getTone(s);
-            if (map.containsKey(diacritic)) {
-                int value = map.get(diacritic) + 1;
-                map.put(diacritic, value);
-            } else {
-                map.put(diacritic, 1);
-            }
-        }
-
         public static Diacritic getTone(String s) {
             Pattern p;
             for (Diacritic diacritic : Diacritic.values()) {
@@ -89,7 +79,13 @@ public class Main {
         Map<Diacritic, Integer> map = new HashMap<>();
         String[] words = s.replaceAll("_", " ").split(" ");
         for (int i = 0; i < words.length; i++) {
-            Diacritic.findDiaDistribution(words[i], map);
+            Diacritic diacritic = Diacritic.getTone(words[i]);
+            if (map.containsKey(diacritic)) {
+                int value = map.get(diacritic) + 1;
+                map.put(diacritic, value);
+            } else {
+                map.put(diacritic, 1);
+            }
         }
 
         return map;
