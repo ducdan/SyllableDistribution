@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,41 +17,50 @@ public class Main {
 
     enum Diacritic {
 
-        SHARP, HANGING, ASKING, TUMBLING, HEAVY, LEVEL;
+        SAC, HUYEN, HOI, NGA, NANG, NGANG;
 
         public String getDiacriticValue() {
             switch (this) {
-                case SHARP:
+                case SAC:
                     return "á ắ ấ é ế í ó ố ớ ú ứ ý";
-                case HANGING:
+                case HUYEN:
                     return "à ằ ầ é ề ì ò ồ ờ ù ừ ỳ";
-                case ASKING:
+                case HOI:
                     return "ả ẳ ẩ ẻ ể ỏ ổ ở ủ ử ỷ";
-                case TUMBLING:
+                case NGA:
                     return "ã ẵ ẫ ẽ ễ õ ỗ ỡ ũ ữ ỹ";
-                case HEAVY:
+                case NANG:
                     return "ạ ặ ậ ẹ ệ ọ ộ ợ ụ ự ỵ";
-                default://LEVEL
+                default://NGANG
                     return "";
             }
         }
 
-        public static void findDiaDistribution(String s, int[] count) {
-            for (Diacritic diacritic : Diacritic.values()) {
-                if (diacritic != diacritic.LEVEL) {
-                    Pattern p = Pattern.compile("\\w*[" + diacritic.getDiacriticValue() + "]+");
-                    Matcher m = p.matcher(s);
-                    if (m.find()) {
-                        count[diacritic.ordinal()]++;
-                        break;
-                    }
-                }
-                else{
-                    count[Diacritic.LEVEL.ordinal()]++;
-                }
+        public static void findDiaDistribution(String s, Map<Diacritic, Integer> map) {
+            Diacritic diacritic = getTone(s);
+            if (map.containsKey(diacritic)) {
+                int value = map.get(diacritic) + 1;
+                map.put(diacritic, value);
+            } else {
+                map.put(diacritic, 1);
             }
         }
 
+        public static Diacritic getTone(String s) {
+            Pattern p;
+            for (Diacritic diacritic : Diacritic.values()) {
+                if (diacritic != NGANG) {
+                    p = Pattern.compile("\\w*[" + diacritic.getDiacriticValue() + "]+");
+                } else {
+                    p = Pattern.compile("");
+                }
+                Matcher m = p.matcher(s);
+                if (m.find()) {
+                    return diacritic;
+                }
+            }
+            return NGANG;
+        }
     }
 
     /**
@@ -60,36 +70,33 @@ public class Main {
 
         String test = readStringFromFile("data/5815000");
 
-        int[] count = countDistributedTones(test);
+        Map<Diacritic, Integer> countDisTones = countDistributedTones(test);
 
         //print count distributed tones result
-        for (Diacritic diacritic : Diacritic.values()) {
-            System.out.println("Number of words belongs to DIACRITIC " + diacritic.name() + " : " + count[diacritic.ordinal()]);
+        for (Diacritic key : countDisTones.keySet()) {
+            System.out.println("Number of words belongs to DIACRITIC " + key.name() + " : " + countDisTones.get(key));
         }
 
-        HashMap<String, Integer> syllableDitribution = countDistributedSyllables(test);
+        Map<Integer, Integer> syllableDitribution = countDistributedSyllables(test);
 
         //print count distributed syllables result
-        for (String key : syllableDitribution.keySet()) {
+        for (int key : syllableDitribution.keySet()) {
             System.out.println("Number of words has " + key + " syllables: " + syllableDitribution.get(key));
         }
     }
 
-    private static int[] countDistributedTones(String s) {
-        int[] count = new int[6];
-        for (int i = 0; i < 6; i++) {
-            count[i] = 0;
-        }
+    private static Map<Diacritic, Integer> countDistributedTones(String s) {
+        Map<Diacritic, Integer> map = new HashMap<>();
         String[] words = s.replaceAll("_", " ").split(" ");
         for (int i = 0; i < words.length; i++) {
-            Diacritic.findDiaDistribution(words[i], count);
+            Diacritic.findDiaDistribution(words[i], map);
         }
 
-        return count;
+        return map;
     }
 
-    private static HashMap<String, Integer> countDistributedSyllables(String s) {
-        HashMap<String, Integer> result = new HashMap();
+    private static Map<Integer, Integer> countDistributedSyllables(String s) {
+        Map<Integer, Integer> result = new HashMap();
         String[] words = s.split(" ");
         for (int i = 0; i < words.length; i++) {
             int matches = 1;
@@ -97,11 +104,11 @@ public class Main {
             while (matcher.find()) {
                 matches++;
             }
-            if (result.containsKey(String.valueOf(matches))) {
-                int value = result.get(String.valueOf(matches)) + 1;
-                result.put(String.valueOf(matches), value);
+            if (result.containsKey(matches)) {
+                int value = result.get(matches) + 1;
+                result.put(matches, value);
             } else {
-                result.put(String.valueOf(matches), 1);
+                result.put(matches, 1);
             }
         }
         return result;
