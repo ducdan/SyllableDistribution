@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package testdata;
+package SyllableDistribution;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,11 +14,44 @@ import java.util.regex.Pattern;
  */
 public class Main {
 
-    public static final String DIACRITIC1 = "á ắ ấ é ế í ó ố ớ ú ứ ý";
-    public static final String DIACRITIC2 = "à ằ ầ é ề ì ò ồ ờ ù ừ ỳ";
-    public static final String DIACRITIC3 = "ả ẳ ẩ ẻ ể ỏ ổ ở ủ ử ỷ";
-    public static final String DIACRITIC4 = "ã ẵ ẫ ẽ ễ õ ỗ ỡ ũ ữ ỹ";
-    public static final String DIACRITIC5 = "ạ ặ ậ ẹ ệ ọ ộ ợ ụ ự ỵ";
+    enum Diacritic {
+
+        SHARP, HANGING, ASKING, TUMBLING, HEAVY, LEVEL;
+
+        public String getDiacriticValue() {
+            switch (this) {
+                case SHARP:
+                    return "á ắ ấ é ế í ó ố ớ ú ứ ý";
+                case HANGING:
+                    return "à ằ ầ é ề ì ò ồ ờ ù ừ ỳ";
+                case ASKING:
+                    return "ả ẳ ẩ ẻ ể ỏ ổ ở ủ ử ỷ";
+                case TUMBLING:
+                    return "ã ẵ ẫ ẽ ễ õ ỗ ỡ ũ ữ ỹ";
+                case HEAVY:
+                    return "ạ ặ ậ ẹ ệ ọ ộ ợ ụ ự ỵ";
+                default://LEVEL
+                    return "";
+            }
+        }
+
+        public static void findDiaDistribution(String s, int[] count) {
+            for (Diacritic diacritic : Diacritic.values()) {
+                if (diacritic != diacritic.LEVEL) {
+                    Pattern p = Pattern.compile("\\w*[" + diacritic.getDiacriticValue() + "]+");
+                    Matcher m = p.matcher(s);
+                    if (m.find()) {
+                        count[diacritic.ordinal()]++;
+                        break;
+                    }
+                }
+                else{
+                    count[Diacritic.LEVEL.ordinal()]++;
+                }
+            }
+        }
+
+    }
 
     /**
      * @param args the command line arguments
@@ -33,21 +61,17 @@ public class Main {
         String test = readStringFromFile("data/5815000");
 
         int[] count = countDistributedTones(test);
-        System.out.println("Denote:"
-                + "\n DIACRITIC1 represents for sắc"
-                + "\n DIACRITIC2 represents for huyền"
-                + "\n DIACRITIC3 represents for hỏi"
-                + "\n DIACRITIC4 represents for ngã"
-                + "\n DIACRITIC5 represents for nặng"
-                + "\n DIACRITIC6 represents for thanh ngang");
-        //print result
-        for (int i = 0; i < 6; i++) {
-            System.out.println("Number of words belong to DIACRITIC " + i + 1 + " : " + count[i]);
+
+        //print count distributed tones result
+        for (Diacritic diacritic : Diacritic.values()) {
+            System.out.println("Number of words belongs to DIACRITIC " + diacritic.name() + " : " + count[diacritic.ordinal()]);
         }
 
         HashMap<String, Integer> syllableDitribution = countDistributedSyllables(test);
+
+        //print count distributed syllables result
         for (String key : syllableDitribution.keySet()) {
-            System.out.println("Number word has " + key + " syllables: " + syllableDitribution.get(key));
+            System.out.println("Number of words has " + key + " syllables: " + syllableDitribution.get(key));
         }
     }
 
@@ -58,46 +82,7 @@ public class Main {
         }
         String[] words = s.replaceAll("_", " ").split(" ");
         for (int i = 0; i < words.length; i++) {
-            Pattern p = Pattern.compile("\\w*[" + DIACRITIC1 + "]+");
-            Matcher m = p.matcher(words[i]);
-            if (m.find()) // match
-            {
-                count[0]++;
-                continue;
-            }
-
-            p = Pattern.compile("\\w*[" + DIACRITIC2 + "]+");
-            m = p.matcher(words[i]);
-            if (m.find()) // match
-            {
-                count[1]++;
-                continue;
-            }
-
-            p = Pattern.compile("\\w*[" + DIACRITIC3 + "]+");
-            m = p.matcher(words[i]);
-            if (m.find()) // match
-            {
-                count[2]++;
-                continue;
-            }
-
-            p = Pattern.compile("\\w*[" + DIACRITIC4 + "]+");
-            m = p.matcher(words[i]);
-            if (m.find()) // match
-            {
-                count[3]++;
-                continue;
-            }
-
-            p = Pattern.compile("\\w*[" + DIACRITIC5 + "]+");
-            m = p.matcher(words[i]);
-            if (m.find()) // match
-            {
-                count[4]++;
-                continue;
-            }
-            count[5]++;
+            Diacritic.findDiaDistribution(words[i], count);
         }
 
         return count;
