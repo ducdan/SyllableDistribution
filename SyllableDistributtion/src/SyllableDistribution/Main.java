@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  *
@@ -38,6 +39,7 @@ public class Main {
 
         public static Diacritic getTone(String s) {
             Pattern p;
+
             for (Diacritic diacritic : Diacritic.values()) {
                 if (diacritic != NGANG) {
                     p = Pattern.compile("\\w*[" + diacritic.getDiacriticValue() + "]+");
@@ -57,7 +59,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-
+        Integer[] da = {1, 2, 3, 4, 5};
         String test = readStringFromFile("data/5815000");
 
         Map<Diacritic, Integer> countDisTones = countDistributedTones(test);
@@ -67,7 +69,7 @@ public class Main {
             System.out.println("Number of words belongs to DIACRITIC " + key.name() + " : " + countDisTones.get(key));
         }
 
-        Map<Integer, Integer> syllableDitribution = countDistributedSyllables(test);
+        Map<Integer, Integer> syllableDitribution = countDistributedSyllables(test, "_");
 
         //print count distributed syllables result
         for (int key : syllableDitribution.keySet()) {
@@ -75,38 +77,39 @@ public class Main {
         }
     }
 
+    private static void putMap(Object key, Map map) {
+        if (map.containsKey(key)) {
+            int value = (int) map.get(key) + 1;
+            map.put(key, value);
+        } else {
+            map.put(key, 1);
+        }
+    }
+
     private static Map<Diacritic, Integer> countDistributedTones(String s) {
         Map<Diacritic, Integer> map = new HashMap<>();
         String[] words = s.replaceAll("_", " ").split(" ");
-        for (int i = 0; i < words.length; i++) {
-            Diacritic diacritic = Diacritic.getTone(words[i]);
-            if (map.containsKey(diacritic)) {
-                int value = map.get(diacritic) + 1;
-                map.put(diacritic, value);
-            } else {
-                map.put(diacritic, 1);
-            }
-        }
-
+        Stream.of(words).parallel()
+                .map(w -> Diacritic.getTone(w))
+                .forEach(t -> putMap(t, map));
         return map;
     }
 
-    private static Map<Integer, Integer> countDistributedSyllables(String s) {
+    private static int countMatch(String s, String regex) {
+        int matches = 1;
+        Matcher matcher = Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(s);
+        while (matcher.find()) {
+            matches++;
+        }
+        return matches;
+    }
+
+    private static Map<Integer, Integer> countDistributedSyllables(String s, String regex) {
         Map<Integer, Integer> result = new HashMap();
         String[] words = s.split(" ");
-        for (int i = 0; i < words.length; i++) {
-            int matches = 1;
-            Matcher matcher = Pattern.compile("_", Pattern.CASE_INSENSITIVE).matcher(words[i]);
-            while (matcher.find()) {
-                matches++;
-            }
-            if (result.containsKey(matches)) {
-                int value = result.get(matches) + 1;
-                result.put(matches, value);
-            } else {
-                result.put(matches, 1);
-            }
-        }
+        Stream.of(words).parallel()
+                .map(w -> countMatch(w, regex))
+                .forEach(t -> putMap(t, result));
         return result;
     }
 
