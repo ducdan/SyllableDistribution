@@ -59,7 +59,6 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        Integer[] da = {1, 2, 3, 4, 5};
         String test = readStringFromFile("data/5815000");
 
         Map<Diacritic, Integer> countDisTones = countDistributedTones(test);
