@@ -5,24 +5,30 @@
 #Example
 
 Input: *"em cực_kỳ dễ_thương"*
+
 Output:
-* Number of words belongs to NGA is 1
-* Number of words belongs to NGA is 1
-* Number of words belongs to NGA is 1
-* Number of words belongs to NGA is 1
-
+* Number of words belongs to NGA, NGANG, NANG, HUYEN is 1, 2, 1, 1 respectively.
+* Number of words has 1 and 2 syllables is 1, 2 respectively
+  
 ##Usage
+```java
+	String s="em cực_kỳ dễ_thương";
+ 
+	WordDistribution counter = new WordDistribution();
 
-For example:
-	Input: em cực_kỳ dễ_thương
-	Output: 
-		Number of words belongs to DIACRITIC NGA : 1
-		Number of words belongs to DIACRITIC NGANG : 2
-		Number of words belongs to DIACRITIC NANG : 1
-		Number of words belongs to DIACRITIC HUYEN : 1
-		Number of words has 1 syllables: 1
-		Number of words has 2 syllables: 2
+        Map<Diacritic, Integer> countDisTones = counter.countTones(s);
 
-Run project with netbeans and get the result.
---
-Project created by DanHD
+        //print distributed tones result
+        for (Diacritic key : countDisTones.keySet()) {
+            System.out.println("Number of words belongs to DIACRITIC " + key.name() + " : " + countDisTones.get(key));
+        }
+
+        Map<Integer, Integer> countDisSyllable = counter.countSyllables(test, "_");
+
+        //print distributed syllables result
+        for (int key : countDisSyllable.keySet()) {
+            System.out.println("Number of words has " + key + " syllables: " + countDisSyllable.get(key));
+        }
+```
+##Thanks
+Thanks to @Arashrouhani for the comment and inspiring me to do a <b>Tones and Syllables Distribution</b> version
