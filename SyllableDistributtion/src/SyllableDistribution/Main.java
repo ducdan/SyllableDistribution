@@ -17,19 +17,33 @@ public class Main {
 
     /**
      * @param args the command line arguments
-     * @throws java.io.IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         String input = "";
-        if (null != args[0]) {
-            switch (args[0]) {
-                case "-path":
-                    input = readStringFromFile(args[1]);
-                    break;
-                case "-text":
-                    Scanner sc = new Scanner(System.in);
-                    input = sc.nextLine();
-                    break;
+        System.out.println("1: text, 2: file\nEnter mode: ");
+        Scanner sc = new Scanner(System.in);
+        int mode = 0;
+        String in = sc.nextLine();
+        while (mode == 0) {
+            if (null != in) {
+                switch (in) {
+                    case "1":
+                        System.err.println("Enter text: ");
+                        input = sc.nextLine();
+                        mode = 1;
+                        break;
+                    case "2":
+                        System.out.println("Enter path to file: ");
+                         {
+                            try {
+                                input = readStringFromFile(sc.nextLine());
+                                mode = 2;
+                            } catch (IOException ex) {
+                                System.out.println("File not found, please enter again: ");
+                            }
+                        }
+                        break;
+                }
             }
         }
 

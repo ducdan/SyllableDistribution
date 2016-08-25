@@ -21,7 +21,11 @@ public class WordDistribution {
 
     public Map<Integer, Long> countSyllables(Stream<String> words) {
         return words.parallel()
-                .collect(Collectors.groupingBy(w -> w.length() - w.replace("_", "").length(), Collectors.counting()));
+                .collect(Collectors.groupingBy(w -> countNumUnderscores(w) + 1, Collectors.counting()));
+    }
+
+    private static int countNumUnderscores(String w) {
+        return w.length() - w.replace("_", "").length();
     }
 
 }
