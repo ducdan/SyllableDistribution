@@ -19,18 +19,9 @@ public class WordDistribution {
                 .collect(Collectors.groupingBy(w -> Diacritic.getTone(w), Collectors.counting()));
     }
 
-    private int countMatch(String s, String regex) {
-        int matches = 1;
-        Matcher matcher = Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(s);
-        while (matcher.find()) {
-            matches++;
-        }
-        return matches;
-    }
-
     public Map<Integer, Long> countSyllables(Stream<String> words) {
         return words.parallel()
-                .collect(Collectors.groupingBy(w -> countMatch(w, "_"), Collectors.counting()));
+                .collect(Collectors.groupingBy(w -> w.length() - w.replace("_", "").length(), Collectors.counting()));
     }
 
 }
